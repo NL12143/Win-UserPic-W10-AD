@@ -1,11 +1,13 @@
 # Account Picture Win10 
 Automatic provision of Account Picture in Windows 10 from Active Directory 
 
-Based on blogpost http://blog.jocha.se/tech/ad-user-pictures-in-windows-10, by Jocha AB; 
+Based on blogpost Get Active Directory pictures in Windows 10, by Jocha AB; 
+http://blog.jocha.se/tech/ad-user-pictures-in-windows-10 
+this uses Setting the Windows 8 Account Picture from AD, by Jourdan Templeton; 
+https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
 
-that uses https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
-by Jourdan Templeton; 
-Loads module Resize-Image-A-PowerShell, by Patrick Lambert
+Script uses module Resize-Image-A-PowerShell, by Patrick Lambert 
+https://gallery.technet.microsoft.com/scriptcenter/Resize-Image-A-PowerShell-3d26ef68, Patrick Lambert
  
 Script "Set-ADPicture-Keys.ps1" uses the following regions: 
 
