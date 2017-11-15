@@ -7,7 +7,8 @@ this uses Setting the Windows 8 Account Picture from AD, by Jourdan Templeton;
 https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
 
 Script uses module Resize-Image-A-PowerShell, by Patrick Lambert 
-https://gallery.technet.microsoft.com/scriptcenter/Resize-Image-A-PowerShell-3d26ef68, Patrick Lambert
+https://gallery.technet.microsoft.com/scriptcenter/Resize-Image-A-PowerShell-3d26ef68, Patrick Lambert 
+Module renamed to Set-ADpicture-Resize.ps1 to align with the name of the main script.
  
 Script "Set-ADPicture-Keys.ps1" uses the following regions: 
 
