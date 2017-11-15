@@ -19,7 +19,7 @@ Script "Set-ADPicture-Keys.ps1" uses the following regions:
 #Prepare registry keys for AccountPictures 
 #Save photo imported from AD 
 #Load module for image resizer 
-#ForEach ($size in $image_sizes)  
+#ForEach ($size in $image_sizes) 
   #Save image to disk C:\Users\Public\AccountPictures\<User_SID>\ 
   #Save image path in registry, overwrite existing entries
 
