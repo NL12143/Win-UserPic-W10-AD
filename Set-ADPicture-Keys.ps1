@@ -42,8 +42,6 @@ $user_photo | Set-Content -Path $pathAD -Encoding Byte -Force
 #Load module for image resizer 
 pushD "C:\Program Files (x86)\Internal\Workplace"
 Import-Module .\Set-ADpicture-AG-Resize.ps1 
-#Get-Location 
-#Get-ChildItem
 
 #endregion
 
@@ -60,6 +58,3 @@ ForEach ($size in $image_sizes) {
 
 #Add a default picture when user has no thumbnail in AD.
 #Add a catch in case loop fials. 
-
-
-
