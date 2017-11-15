@@ -1,5 +1,5 @@
 # Account Picture Win10 
-Automatic provision of Account Picture in Windows 10 from Active Directory 
+Automatic provision of Account Picture in Win10 from Active Directory 
 
 Based on blogpost Get Active Directory pictures in Windows 10, by Jocha AB; 
 http://blog.jocha.se/tech/ad-user-pictures-in-windows-10 
