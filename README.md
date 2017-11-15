@@ -1,5 +1,5 @@
-# Account Picture Win10
-Automatic provision of Account Picture in Windows 10 from Active Directory
+# Account Picture Win10 
+Automatic provision of Account Picture in Windows 10 from Active Directory 
 
 #Set-ADPicture-Keys.ps1
 #source Blog http://blog.jocha.se/tech/ad-user-pictures-in-windows-10, 
