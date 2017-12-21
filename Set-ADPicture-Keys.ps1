@@ -56,5 +56,8 @@ ForEach ($size in $image_sizes) {
     $value = New-ItemProperty -Path $reg_key -Name $name -Value $path -Force
     }
 
+
 #Add a default picture when user has no thumbnail in AD.
-#Add a catch in case loop fials. 
+#Add a catch in case the loop fails. 
+#Add a time-out value to quit after 10 ms.
+
