@@ -34,6 +34,7 @@ $reg_base = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\AccountPicture\User
 $reg_key = [string]::format($reg_base, $user_sid)
 $reg_value_mask = "Image{0}"
 If ((Test-Path -Path $reg_key) -eq $false) { New-Item -Path $reg_key } 
+#endregion
 
 #Save photo imported from AD 
 $pathAD = $dir + "\" + "imageAD.jpg"  
@@ -43,9 +44,9 @@ $user_photo | Set-Content -Path $pathAD -Encoding Byte -Force
 pushD "C:\Program Files (x86)\Internal\Workplace"
 Import-Module .\Set-ADpicture-AG-Resize.ps1 
 
-#endregion
-
-ForEach ($size in $image_sizes) {
+#region loop for picture sizes
+ForEach ($size in $image_sizes) 
+TRY {
     #Save image to disk C:\Users\Public\AccountPictures\<User_SID>\ 
     $file_name = ([string]::format($image_mask, $size))
     $path = $dir + "\" + $file_name
@@ -55,7 +56,10 @@ ForEach ($size in $image_sizes) {
     $name = [string]::format($reg_value_mask, $size)
     $value = New-ItemProperty -Path $reg_key -Name $name -Value $path -Force
     }
-
+CATCH {
+	????????????
+}
+endregion #loop
 
 #Add a default picture when user has no thumbnail in AD.
 #Add a catch in case the loop fails. 
