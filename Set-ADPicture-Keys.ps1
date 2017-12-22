@@ -6,14 +6,19 @@
 #authors: Roeland Cerfonteijn; Sencer Demir 
 
 #region Set script variables and load image resizer 
+$StartDir = "C:\Users\Public\Logon\" 
+Set-Location $StartDir  
+$DefaultPic = $StartDir\Set-ADpicture-Default.jpg 
+
 #Get user object from AD and store in script variables 
 $user = ([ADSISearcher]"(&(objectCategory=User)(SAMAccountName=$env:username))").FindOne().Properties
-#Store user properties
 $user_name = $env:username
-$user_photo = $user.thumbnailphoto
+If $user.thumbnailphoto -eq $null { $user_photo = $DefaultPic }
+Else $user_photo = $user.thumbnailphoto
 $user_sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+#endregion 
 
-#Setup image sizes and base path
+#Region Setup image sizes and base path
 $image_sizes = @(32, 40, 48, 96, 192, 200, 240, 448)
 $image_mask = "Image{0}.jpg"
 $image_base =  "C:\Users\Public\AccountPictures" 
@@ -22,7 +27,7 @@ $image_base =  "C:\Users\Public\AccountPictures"
 #UserEdit C:\Users\Public\AccountPictures\<User_SID>\ > #After upload by user resize is stored here
 #History C:\Users\G18554\AppData\Roaming\Microsoft\Windows\AccountPictures\ Last uploaded pictures 
 
-#Create folder to store temp images 
+#Prepare folder to store temp images 
 #C:\Users\Public\AccountPictures\<User_SID>\ as when user changes himself
 $dir = $image_base + "\" + $user_sid
 If ((Test-Path -Path $dir) -eq $false) { $(mkdir $dir).Attributes = "Hidden" }
@@ -37,29 +42,23 @@ If ((Test-Path -Path $reg_key) -eq $false) { New-Item -Path $reg_key }
 #endregion
 
 #Save photo imported from AD 
-$pathAD = $dir + "\" + "imageAD.jpg"  
-$user_photo | Set-Content -Path $pathAD -Encoding Byte -Force 
+$imageAD = $dir + "\" + "imageAD.jpg" 
+If 
+$user_photo | Set-Content -Path $imageAD -Encoding Byte -Force 
 
-#Load module for image resizer 
-pushD "C:\Program Files (x86)\Internal\Workplace"
 Import-Module .\Set-ADpicture-AG-Resize.ps1 
-
 #region loop for picture sizes
-ForEach ($size in $image_sizes) 
-TRY {
+ForEach ($size in $image_sizes) {
     #Save image to disk C:\Users\Public\AccountPictures\<User_SID>\ 
     $file_name = ([string]::format($image_mask, $size))
     $path = $dir + "\" + $file_name
-    Resize-Image -InputFile $pathAD -Width $size -Height $size -OutputFile $path 
+    Resize-Image -InputFile $imageAD -Width $size -Height $size -OutputFile $path 
 
     #Save image path in registry, overwrite existing entries
     $name = [string]::format($reg_value_mask, $size)
     $value = New-ItemProperty -Path $reg_key -Name $name -Value $path -Force
-    }
-CATCH {
-	????????????
 }
-endregion #loop
+#endregion loop
 
 #Add a default picture when user has no thumbnail in AD.
 #Add a catch in case the loop fails. 
