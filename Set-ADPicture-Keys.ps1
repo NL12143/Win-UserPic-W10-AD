@@ -5,10 +5,12 @@
 #edits for company and added image resizing using function 
 #authors: Roeland Cerfonteijn; Sencer Demir 
 
+TRY {
 #region Set script variables and load image resizer 
-$StartDir = "C:\Users\Public\Logon\" 
+$StartDir = "C:\Users\Public\AccountPictures\" 
 Set-Location $StartDir  
-$DefaultPic = $StartDir\Set-ADpicture-Default.jpg 
+$DefaultPic = "$StartDir\Set-ADpicture-Default.jpg 
+$LogFile = "$StartDir\Set-ADPicture-AG-Log.log"  
 
 #Get user object from AD and store in script variables 
 $user = ([ADSISearcher]"(&(objectCategory=User)(SAMAccountName=$env:username))").FindOne().Properties
@@ -59,8 +61,20 @@ ForEach ($size in $image_sizes) {
     $value = New-ItemProperty -Path $reg_key -Name $name -Value $path -Force
 }
 #endregion loop
+$text1 = "$(Get-Date -format yyyy-MM-dd-HH:mm:ss). No error running picture script."    
+$text2 = "Pictures stored in C:\Users\Public\AccountPictures\<UserSID>" 
+Set-Content $text1 -Path $LogFile 
+Add-Content $text2 -Path $LogFile 
+}
 
+CATCH {
+$LogFile = "$StartDir\Set-ADPicture-AG-Log.log"  
+if ($Error) {
+Set-Content $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile -ErrorAction SilentlyContinue 
+Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue
+}
+
+#Add for production: -ErrorAction SilentlyContinue
 #Add a default picture when user has no thumbnail in AD.
 #Add a catch in case the loop fails. 
 #Add a time-out value to quit after 10 ms.
-
