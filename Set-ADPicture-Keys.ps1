@@ -61,6 +61,7 @@ ForEach ($size in $image_sizes) {
     $value = New-ItemProperty -Path $reg_key -Name $name -Value $path -Force
 }
 #endregion loop
+
 $text1 = "$(Get-Date -format yyyy-MM-dd-HH:mm:ss). No error running picture script."    
 $text2 = "Pictures stored in C:\Users\Public\AccountPictures\<UserSID>" 
 Set-Content $text1 -Path $LogFile 
@@ -72,6 +73,7 @@ $LogFile = "$StartDir\Set-ADPicture-AG-Log.log"
 if ($Error) {
 Set-Content $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile -ErrorAction SilentlyContinue 
 Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue
+else Set-Content "Catch but no error" $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile 
 }
 
 #Add for production: -ErrorAction SilentlyContinue
