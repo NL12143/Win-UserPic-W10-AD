@@ -6,18 +6,20 @@
 #authors: Roeland Cerfonteijn; Sencer Demir 
 
 TRY {
-#region Set script variables and load image resizer 
-$StartDir = "C:\Users\Public\AccountPictures\" 
+#region Set script variables 
+$StartDir = "C:\Users\Public\AccountPictures" 
 Set-Location $StartDir  
-$DefaultPic = "$StartDir\Set-ADpicture-Default.jpg 
-$LogFile = "$StartDir\Set-ADPicture-AG-Log.log"  
-
+Import-Module .\Set-ADpicture-AG-Resize.ps1 
+$DefaultPic = "$StartDir\SetADpicture-Default.jpg" 
+$LogFile = "$StartDir\SetADPicture-AG-Log.log"  
 #Get user object from AD and store in script variables 
 $user = ([ADSISearcher]"(&(objectCategory=User)(SAMAccountName=$env:username))").FindOne().Properties
-$user_name = $env:username
-If $user.thumbnailphoto -eq $null { $user_photo = $DefaultPic }
-Else $user_photo = $user.thumbnailphoto
-$user_sid = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+$userName = $env:username
+$userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+
+#Set picture to ADpicture or default 
+If ($user.thumbnailphoto -eq $null) {$userPhoto = $DefaultPic }
+Else {$userPhoto = $user.thumbnailphoto }
 #endregion 
 
 #Region Setup image sizes and base path
@@ -30,7 +32,6 @@ $image_base =  "C:\Users\Public\AccountPictures"
 #History C:\Users\G18554\AppData\Roaming\Microsoft\Windows\AccountPictures\ Last uploaded pictures 
 
 #Prepare folder to store temp images 
-#C:\Users\Public\AccountPictures\<User_SID>\ as when user changes himself
 $dir = $image_base + "\" + $user_sid
 If ((Test-Path -Path $dir) -eq $false) { $(mkdir $dir).Attributes = "Hidden" }
 
@@ -45,8 +46,7 @@ If ((Test-Path -Path $reg_key) -eq $false) { New-Item -Path $reg_key }
 
 #Save photo imported from AD 
 $imageAD = $dir + "\" + "imageAD.jpg" 
-If 
-$user_photo | Set-Content -Path $imageAD -Encoding Byte -Force 
+$userPhoto | Set-Content -Path $imageAD -Encoding Byte -Force 
 
 Import-Module .\Set-ADpicture-AG-Resize.ps1 
 #region loop for picture sizes
@@ -62,20 +62,28 @@ ForEach ($size in $image_sizes) {
 }
 #endregion loop
 
+#Log when TRY done 
 $text1 = "$(Get-Date -format yyyy-MM-dd-HH:mm:ss). No error running picture script."    
-$text2 = "Pictures stored in C:\Users\Public\AccountPictures\<UserSID>" 
+$text2 = "Pictures for user $UserName stored in C:\Users\Public\AccountPictures\$UserSID" 
 Set-Content $text1 -Path $LogFile 
 Add-Content $text2 -Path $LogFile 
 }
+#endregion TRY 
 
+#region CATCH 
 CATCH {
+#Log when catch
 $LogFile = "$StartDir\Set-ADPicture-AG-Log.log"  
-if ($Error) {
+If ($Error) {
 Set-Content $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile -ErrorAction SilentlyContinue 
-Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue
-else Set-Content "Catch but no error" $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile 
-}
+Add-Content "Errors when running the picture script. Details below:" –path $LogFile -ErrorAction SilentlyContinue
+Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue 
+} 
+Else { Set-Content "Catch but no error $(Get-Date -format yyyy-MM-dd-HH:mm:ss)" –path $LogFile }
+} 
+#endregion CATCH 
 
+#TODO
 #Add for production: -ErrorAction SilentlyContinue
 #Add a default picture when user has no thumbnail in AD.
 #Add a catch in case the loop fails. 
