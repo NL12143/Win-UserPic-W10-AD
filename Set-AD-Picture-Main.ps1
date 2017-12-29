@@ -77,5 +77,7 @@ Add-Content $text2 -Path $LogFile -ErrorAction SilentlyContinue
 CATCH { 
 If ($Error) {
 Set-Content $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile -ErrorAction SilentlyContinue 
-Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue }
-Else {Set-Content "Catch but no error" $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile }
+Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue 
+}
+Else {Set-Content "Catch but no error" $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile 
+}
