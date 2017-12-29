@@ -1,11 +1,9 @@
-[byte[]](Get-Content "\\$env:USERDNSDOMAIN\NETLOGON\defaultuser.jpg" -Encoding byte)
-
 #Set-ADPicture-AG-Keys.ps1
-#source Blog http://blog.jocha.se/tech/ad-user-pictures-in-windows-10, by Jocha AB
-#based on https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
-#Uses module Resize-Image-A-PowerShell-3d26ef68, by Patrick Lambert
-#edits for company and added image resizing using function 
-#authors: Roeland Cerfonteijn; Sencer Demir 
+#source: Blog http://blog.jocha.se/tech/ad-user-pictures-in-windows-10, by Jocha AB
+#basedon: https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
+#uses: module Resize-Image-A-PowerShell-3d26ef68, by Patrick Lambert
+#edits: for company and added image resizing using function 
+#authors: Roeland Cerfonteijn
 
 #Set script variables 
 $Error.Clear()
@@ -16,26 +14,22 @@ $DefaultPic = "$StartDir\Set-ADpicture-Default.jpg"
 $LogFile = "$StartDir\Set-ADpicture-Log.log"  
 
 #Get user object from AD and store in script variables 
-##$user = ([ADSISearcher]"(&(objectCategory=User)(SAMAccountName=$env:username))").FindOne().Properties
-##$userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-$user = Get-ADuser -Identity $env:username -Properties * 
+$user = ([ADSISearcher]"(&(objectCategory=User)(SAMAccountName=$env:username))").FindOne().Properties
+$userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+##This works without needing to import ActiceDirectory module, takes 30 ms  
+##http://www.lazywinadmin.com/2013/10/powershell-get-domainuser.html
+##Alternative is as below but needs to import module, that takes 641 ms time 
+##$user = Get-ADuser -Identity $env:username -Properties * 
+"#Get-InstalledModule 
 $userSID = $user.SID.Value 
 
 #Set picture to ADpicture or default 
 If ($user.thumbnailphoto -eq $null) { 
-$userphoto = [byte[]](Get-Content $DefaultPic -Encoding byte) 
-$userphoto = [byte[]](Get-Content $photo -Encoding byte) 
-$photo = Get-Content $DefaultPic -Encoding byte
-$photo ="$StartDir\Set-ADpicture-Default.jpg"
-$photo
-$DefaultPic
-$userphoto
-}
+    $userphoto = [byte[]](Get-Content $DefaultPic -Encoding byte) 
+    }
 Else {
-$userPhoto = $user.thumbnailphoto 
-}
-$userphoto
-#endregion 
+    $userPhoto = $user.thumbnailphoto 
+    }
 
 #Region Setup image sizes and base path
 $image_sizes = @(32, 40, 48, 96, 192, 200, 240, 448)
@@ -85,4 +79,3 @@ If ($Error) {
 Set-Content $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile -ErrorAction SilentlyContinue 
 Add-Content $Error.Exception.Message -Path $LogFile -ErrorAction SilentlyContinue }
 Else {Set-Content "Catch but no error" $(Get-Date -format yyyy-MM-dd-HH:mm:ss) –path $LogFile }
-
