@@ -1,4 +1,4 @@
-#Set-ADPicture-AG-Keys.ps1
+#Set-ADPicture-AG-Main.ps1
 #source: Blog http://blog.jocha.se/tech/ad-user-pictures-in-windows-10, by Jocha AB
 #basedon: https://blog.jourdant.me/post/ps-setting-windows-8-account-picture-from-ad, 
 #uses: module Resize-Image-A-PowerShell-3d26ef68, by Patrick Lambert
@@ -6,10 +6,9 @@
 #authors: Roeland Cerfonteijn
 
 #Set script variables 
-$Error.Clear()
 $StartDir = "C:\Users\Public\Set-ADpicture" 
-Set-Location $StartDir  
-Import-Module .\Set-ADpicture-Resize.ps1 
+#Set-Location $StartDir  
+Import-Module $StartDir\Set-ADpicture-Resize.ps1 
 $DefaultPic = "$StartDir\Set-ADpicture-Default.jpg" 
 $LogFile = "$StartDir\Set-ADpicture-Log.log"  
 
@@ -20,18 +19,19 @@ $userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
 ##http://www.lazywinadmin.com/2013/10/powershell-get-domainuser.html
 ##Alternative is as below but needs to import module, that takes 641 ms time 
 ##$user = Get-ADuser -Identity $env:username -Properties * 
-"#Get-InstalledModule 
-$userSID = $user.SID.Value 
+##$userSID = $user.SID.Value 
+##Get-InstalledModule 
+##Measure-Command { ..... } 
 
-#Set picture to ADpicture or default 
+#Set picture to ADpicture or use the default 
 If ($user.thumbnailphoto -eq $null) { 
     $userphoto = [byte[]](Get-Content $DefaultPic -Encoding byte) 
-    }
+}
 Else {
     $userPhoto = $user.thumbnailphoto 
-    }
+}
 
-#Region Setup image sizes and base path
+#Setup image sizes and base path
 $image_sizes = @(32, 40, 48, 96, 192, 200, 240, 448)
 $image_mask = "Image{0}.jpg"
 $image_base =  "C:\Users\Public\AccountPictures" 
