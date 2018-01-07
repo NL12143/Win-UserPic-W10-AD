@@ -1,0 +1,63 @@
+https://support.microsoft.com/en-us/help/2497721/user-contact-photos-in-lync-aren-t-displayed-correctly
+
+#If you are running the Microsoft Azure Active Directory Sync Tool , 
+#run a Windows PowerShell script to populate the thumbnailPhoto attribute in the on-premises Active Directory schema. 
+
+$SAMName=Read-Host "Enter a username"
+
+#input variables
+$root = [ADSI]'GC://dc=contoso,dc=local'
+#On line 2 of the script, edit the GC location to reflect the local Active Directory schema. 
+#In this example, we use the Contoso.local domain. 
+
+#script variables
+$searcher = new-object System.DirectoryServices.DirectorySearcher($root)
+$searcher.filter = "(&(objectClass=user)(sAMAccountName=$SAMName))"
+$user = $searcher.findall()
+$userdn = $user[0].path
+$userdn = $userdn.trim("GC")
+$userdn = "LDAP" + $userdn
+
+function Select-FileDialog
+{
+param([string]$Title,[string]$Directory,[string]$Filter="All Files (*.*)|*.*")
+[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
+$objForm = New-Object System.Windows.Forms.OpenFileDialog
+$objForm.InitialDirectory = $Directory
+$objForm.Filter = $Filter
+$objForm.Title = $Title
+$objForm.ShowHelp = $true
+$Show = $objForm.ShowDialog()
+If ($Show -eq "OK") {
+  Return $objForm.FileName
+  }
+Else {
+  Write-Error "Operation canceled by user."
+  }
+}
+
+$photo = Select-FileDialog -Title "Select a photo" -Directory "%userprofile%" -Filter "JPG Images (*.jpg)|*.jpg|PNG Images (*.png)|*.png"
+
+$user = [ADSI]($userdn)
+[byte[]]$file = Get-Content $photo -Encoding Byte
+
+# clear previous image if exist 
+$user.Properties["thumbnailPhoto"].Clear()
+
+# write the image to the user's thumbnailPhoto attribute by converting the byte[] to Base64String 
+$result = $user.Properties["thumbnailPhoto"].Add($file)
+
+# commit the changes to AD 
+$user.CommitChanges()
+
+#write results to output
+if ($result -eq "0") {
+  Write-Host "Photo successfully uploaded."
+  } 
+else {
+  Write-Error "Photo was not uploaded."
+  }
+
+#Wait 12 to 24 hours for all changes to take effect.
+#Note If the photo was published by using this method, external contacts such as Hotmail users and other federated organizations 
+#can't display the photo. The photo can't be displayed because the file can't be accessed from external locations.
